@@ -1,16 +1,17 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Params} from '@angular/router';
 import {BoardService} from '../services/board.service';
 import {Board, Card, Column} from '../../environments/interfaces';
 import * as $ from 'jquery';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-boards-page',
   templateUrl: './boards-page.component.html',
   styleUrls: ['./boards-page.component.scss']
 })
-export class BoardsPageComponent implements OnInit {
+export class BoardsPageComponent implements OnInit, OnDestroy {
   formColumn: FormGroup;
   formCard: FormGroup;
   formEditColumn: FormGroup;
@@ -19,6 +20,7 @@ export class BoardsPageComponent implements OnInit {
   modalColumn: Column = {name: '', id: 0};
   modalCard: Card = {name: '', id: 0, content: ''};
   showDelete: boolean = false;
+  sub$: Subscription;
 
   constructor(private route: ActivatedRoute,
               private boardService: BoardService) {
@@ -38,7 +40,7 @@ export class BoardsPageComponent implements OnInit {
       editCardName: new FormControl(this.modalCard.name, Validators.required),
       editCardContent: new FormControl(this.modalCard.content),
     });
-    this.route.params.subscribe((params: Params) => {
+    this.sub$ = this.route.params.subscribe((params: Params) => {
       this.board = this.boardService.boardById(+params.id);
     });
     $(document).on('click', function(event) {
@@ -137,5 +139,9 @@ export class BoardsPageComponent implements OnInit {
     this.formEditCard.controls['editCardName'].setValue(this.modalCard.name);
     this.formEditCard.controls['editCardContent'].setValue(this.modalCard.content);
     $('.card-modal-wrapper').css('display', 'block');
+  }
+
+  ngOnDestroy() {
+    this.sub$.unsubscribe();
   }
 }
