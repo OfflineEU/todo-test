@@ -1,0 +1,110 @@
+<h2 class="title">{{board.name}}</h2>
+
+<div class="container">
+  <div class="column-wrapper">
+    <div class="column-block"
+         *ngFor="let column of board.columns">
+      <div class="title">
+        <h3>{{column.name}}</h3>
+        <a class="more" (click)="showColSett($event, column.id)"> </a>
+        <div class="settBlock">
+          <h3>Column editing</h3>
+          <hr>
+          <form [formGroup]="formEditColumn" (ngSubmit)="formEditColumnSubmit()">
+            <label for="columnName">Edit column name</label>
+            <input type="text" value="{{this.modalColumn.name}}" formControlName="editColumnName" id="columnName">
+            <div
+              class="validation"
+              *ngIf="formEditColumn.get('editColumnName').touched && formEditColumn.get('editColumnName').invalid"
+            >
+              <small *ngIf="formEditColumn.get('editColumnName').errors.required">This field cannot be empty</small>
+            </div>
+            <button type="submit" [disabled]="formEditColumn.invalid">Save</button>
+          </form>
+          <hr>
+          <button (click)="showDelete = true" class="deleteBtn">Delete column</button>
+        </div>
+      </div>
+      <div class="list-block" *ngFor="let card of column.cards">
+        <a (click)="cardEdit(column.id, card.id)">{{card.name}}</a>
+        <p class="description">{{card.content}}</p>
+        <span (click)="deleteCard(column.id, card.id)">&times;</span>
+      </div>
+      <div class="list-add">
+        <a id="newCard" class="addCardTitle"
+           appFormStyle
+        >Add new card</a>
+        <!-- Create card form -->
+        <form id="create-card" class="addCardTitleForm"
+              [formGroup]="formCard"
+              (ngSubmit)="submitCard(column.id)">
+          <div class="wrapper">
+            <input type="text" placeholder="Card name" formControlName="cardName">
+            <span id="closeNewCard"
+                  appFormStyle
+            >&times;</span>
+          </div>
+          <div
+            class="validation"
+            *ngIf="formCard.get('cardName').touched && formCard.get('cardName').invalid"
+          >
+            <small *ngIf="formCard.get('cardName').errors.required">This field cannot be empty</small>
+          </div>
+          <button type="submit"
+                  [disabled]=formCard.invalid
+          >Create new card
+          </button>
+        </form>
+        <!-- -- -->
+      </div>
+    </div>
+    <div class="column-add" id="newColumn"
+         appFormStyle>
+      <h3>Add new column</h3>
+      <!-- Create column form -->
+      <form id="create-column"
+            [formGroup]="formColumn"
+            (ngSubmit)="submitColumn()">
+        <div class="input-wrapper">
+          <input type="text" id="column-name" placeholder="Column name" formControlName="columnName">
+          <div
+            class="validation"
+            *ngIf="formColumn.get('columnName').touched && formColumn.get('columnName').invalid"
+          >
+            <small *ngIf="formColumn.get('columnName').errors.required">This field cannot be empty</small>
+          </div>
+          <span id="closeNewColumn">&times;</span>
+        </div>
+        <button type="submit"
+                [disabled]="formColumn.invalid"
+        >Create column
+        </button>
+      </form>
+      <!-- -- -->
+    </div>
+  </div>
+</div>
+<div class="modal-confirm" *ngIf="showDelete">
+  <h3>Are you sure you want to delete <strong>{{modalColumn.name}}</strong></h3>
+  <div class="button-block">
+    <button (click)="deleteColumn(true)">Yes</button>
+    <button (click)="deleteColumn(false)">No</button>
+  </div>
+</div>
+<div class="card-modal-wrapper">
+  <div class="card-modal-block">
+    <div class="close" appModalClose>&times;</div>
+    <h3>{{modalCard.name}}</h3>
+    <form [formGroup]="formEditCard" (ngSubmit)="formEditCardSubmit()">
+      <label>Card name:<input type="text" value="{{modalCard.name}}" formControlName="editCardName"></label>
+      <div
+        class="validation"
+        *ngIf="formEditCard.get('editCardName').touched && formEditCard.get('editCardName').invalid"
+      >
+        <small *ngIf="formEditCard.get('editCardName').errors.required">This field cannot be empty</small>
+      </div>
+      <label>Card description:<textarea formControlName="editCardContent">{{modalCard.content}}</textarea></label>
+      <button type="submit" [disabled]="this.formEditCard.invalid">Edit card</button>
+    </form>
+  </div>
+</div>

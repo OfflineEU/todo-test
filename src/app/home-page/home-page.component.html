@@ -1,0 +1,66 @@
+<div class="container">
+  <h2>Boards</h2>
+  <div class="board-wrapper">
+    <div class="board-item"
+         *ngFor="let board of boardService.boards"
+         appButtonStyle="{{board.id}}"
+    >
+      <a [routerLink]="['/boards', board.id]">
+        <h3>{{board.name}}</h3>
+      </a>
+      <div class="settBtn" (click)="showModal(board.id)"></div>
+    </div>
+    <div class="board-item add-item" appModal="open" >
+      <h3>Add new board</h3>
+    </div>
+  </div>
+  <div class="add-board-wrapper">
+    <div class="add-board-block">
+      <h3>New board</h3>
+      <div class="close"  appModal="close" >&times;</div>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <input type="text" name="board-name" placeholder="Board name" formControlName="boardName">
+        <div
+          class="validation"
+          *ngIf="form.get('boardName').touched && form.get('boardName').invalid"
+        >
+          <small *ngIf="form.get('boardName').errors.required">This field cannot be empty</small>
+          <small
+            *ngIf="form.get('boardName').errors.minlength"
+          >Name must be {{form.get('boardName').errors.minlength.requiredLength}} characters or more.
+            Current character count: {{form.get('boardName').errors.minlength.actualLength}}</small>
+        </div>
+        <button type="submit" [disabled]="form.invalid">Create board</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal-wrapper">
+  <div class="modal-block" *ngIf="!showDelete">
+    <h3>Board edition</h3>
+    <div class="close"  appModal="editBoardClose" >&times;</div>
+    <form [formGroup]="formEdit" (ngSubmit)="editSubmit()">
+      <input type="text" value="{{modalData.name}}" formControlName="name">
+      <div
+        class="validation"
+        *ngIf="formEdit.get('name').touched && formEdit.get('name').invalid"
+      >
+        <small *ngIf="formEdit.get('name').errors.required">This field cannot be empty</small>
+        <small
+          *ngIf="formEdit.get('name').errors.minlength"
+        >Name must be {{formEdit.get('name').errors.minlength.requiredLength}} characters or more.
+          Current character count: {{formEdit.get('name').errors.minlength.actualLength}}</small>
+      </div>
+      <button type="submit">Edit board name</button>
+      <hr>
+    </form>
+    <button (click)="showDelete = true" class="deleteBtn">Delete board</button>
+  </div>
+  <div class="modal-confirm" *ngIf="showDelete">
+    <h3>Are you sure you want to delete <strong>{{modalData.name}}</strong></h3>
+    <div class="button-block">
+      <button (click)="deleteBoard(true)">Yes</button>
+      <button (click)="deleteBoard(false)">No</button>
+    </div>
+  </div>
+</div>

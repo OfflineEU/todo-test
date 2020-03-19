@@ -1,0 +1,146 @@
+@mixin modalWrapper {
+  &-wrapper {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &-block {
+    position: fixed;
+    padding: .3rem 1rem;
+    left: 50%;
+    top: 30%;
+    border-radius: 5px;
+    text-align: center;
+    background-color: #fff;
+    opacity: .9;
+    transform: translateX(-50%);
+  }
+}
+
+input, button {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+input {
+  font-size: 16px;
+}
+button {
+  margin-bottom: 10px;
+}
+
+.deleteBtn {
+  display: block;
+  margin: 10px auto;
+  width: 100%;
+  border: none;
+  border-radius: 3px;
+  background-color: #a4444b;
+  font-size: 16px;
+  transition: background-color .3s;
+
+  &:hover {
+    background-color: darken(#a4444b, 10%);
+  }
+}
+
+.board {
+  &-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-gap: 10px;
+  }
+
+  &-item {
+    position: relative;
+    display: inline-block;
+    height: 85px;
+    background-color: rgba(63, 120, 226, 0.49);
+    border-radius: 5px;
+    transition: background-color .3s;
+
+    &.add-item {
+      background-color: rgba(56, 159, 85, .5);
+      text-align: center;
+      cursor: pointer;
+      transition: background-color .3s;
+
+      h3 {
+        line-height: 85px;
+        color: #fff;
+        font-weight: 200;
+      }
+
+      &:hover {
+        background-color: rgba(56, 159, 85, .7);
+      }
+    }
+
+    a {
+      display: block;
+      height: 100%;
+      padding: 8px;
+      text-decoration: none;
+
+      h3 {
+        color: #fff;
+      }
+    }
+
+    &:hover {
+      background-color: rgba(38, 79, 152, 0.49);
+    }
+
+    .settBtn {
+      position: absolute;
+      display: none;
+      padding: 10px;
+      border-radius: 5px;
+      height: 15px;
+      width: 15px;
+      right: 10px;
+      bottom: 10px;
+      background: url('../../assets/img/settings.png');
+      background-size: cover;
+      cursor: pointer;
+      transition: box-shadow .3s;
+      &:hover {
+        box-shadow: 0 0 15px rgb(255, 255, 255);
+      }
+    }
+  }
+}
+
+.add-board {
+  @include modalWrapper;
+}
+
+.modal {
+  @include modalWrapper;
+
+  &-confirm {
+    position: fixed;
+    padding: 1rem;
+    left: 50%;
+    top: 30%;
+    border-radius: 5px;
+    text-align: center;
+    background-color: #333333;
+    opacity: .9;
+    transform: translateX(-50%);
+
+    h3 {
+      color: #fff;
+    }
+
+    .button-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 30px;
+    }
+  }
+}

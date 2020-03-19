@@ -1,0 +1,64 @@
+$light: #fff;
+$btnBg: rgba(255, 255, 255, 0.3);
+
+section {
+  margin: 0 10px;
+}
+
+.navbar {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 4px;
+  background-color: darken(#4BBF6B, 10%);
+  z-index: 1;
+
+  h1 {
+    color: $light;
+  }
+
+  &-item {
+    display: flex;
+    align-items: center;
+
+    & * {
+      display: inline-block;
+      margin-right: 20px;
+      font-size: 18px;
+      color: $light;
+    }
+  }
+
+  button {
+    margin: 0 4px 0 0;
+    padding: 0;
+    min-width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 3px;
+    background-color: $btnBg;
+    font-weight: 700;
+    line-height: 32px;
+    cursor: pointer;
+    transition: background-color, .3s;
+
+    &:hover {
+      background-color: darken($btnBg, 25%);
+    }
+
+    a {
+      font-size: 14px;
+    }
+
+    img {
+      margin: 0 auto;
+      height: 20px;
+      vertical-align: center;
+    }
+  }
+
+  .home {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
