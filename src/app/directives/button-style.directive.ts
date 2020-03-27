@@ -1,17 +1,21 @@
 import {Directive, HostListener, Input} from '@angular/core';
-import * as $ from 'jquery';
+
 @Directive({
   selector: '[appButtonStyle]'
 })
+
 export class ButtonStyleDirective {
-@Input('appButtonStyle') id: number;
-  constructor() { }
-  @HostListener('mouseenter') onEnter() {
-    const selector = `[href="/boards/${this.id}"]`;
-    $(`a${selector}`).parent().find($('.settBtn')).css('display', 'block');
+
+  @Input('appButtonStyle') id: number;
+
+
+  @HostListener('mouseenter', ['$event']) onEnter(event) {
+    const linkParent = event.target.parentNode.querySelector(`a[href="/boards/${this.id}"]`).parentNode;
+    linkParent.querySelector('.settBtn').style.display = 'block';
   }
-  @HostListener('mouseleave') onLeave() {
-    const selector = `[href="/boards/${this.id}"]`;
-    $(`a${selector}`).parent().find($('.settBtn')).css('display', 'none');
+
+  @HostListener('mouseleave', ['$event']) onLeave(event) {
+    const linkParent = event.target.parentNode.querySelector(`a[href="/boards/${this.id}"]`).parentNode;
+    linkParent.querySelector('.settBtn').style.display = 'none';
   }
 }

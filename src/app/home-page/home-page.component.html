@@ -10,14 +10,14 @@
       </a>
       <div class="settBtn" (click)="showModal(board.id)"></div>
     </div>
-    <div class="board-item add-item" appModal="open" >
+    <div class="board-item add-item" (click)="addBoardModal = true">
       <h3>Add new board</h3>
     </div>
   </div>
-  <div class="add-board-wrapper">
+  <div class="add-board-wrapper" *ngIf="addBoardModal" #addBoardWrapper>
     <div class="add-board-block">
       <h3>New board</h3>
-      <div class="close"  appModal="close" >&times;</div>
+      <div class="close"  (click)="addBoardModal = false">&times;</div>
       <form [formGroup]="form" (ngSubmit)="submit()">
         <input type="text" name="board-name" placeholder="Board name" formControlName="boardName">
         <div
@@ -35,10 +35,10 @@
     </div>
   </div>
 </div>
-<div class="modal-wrapper">
+<div class="modal-wrapper" *ngIf="editBoardModal" #modalWrapper>
   <div class="modal-block" *ngIf="!showDelete">
     <h3>Board edition</h3>
-    <div class="close"  appModal="editBoardClose" >&times;</div>
+    <div class="close" (click)="editBoardModal = false">&times;</div>
     <form [formGroup]="formEdit" (ngSubmit)="editSubmit()">
       <input type="text" value="{{modalData.name}}" formControlName="name">
       <div

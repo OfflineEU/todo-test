@@ -1,5 +1,4 @@
-import {Component, OnInit} from '@angular/core';
-import * as $ from 'jquery';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Board} from '../../environments/interfaces';
 import {Router} from '@angular/router';
@@ -11,11 +10,15 @@ import {BoardService} from '../services/board.service';
   styleUrls: ['./home-page.component.scss']
 })
 export class HomePageComponent implements OnInit {
-
+  @ViewChild('addBoardWrapper') addBoardWrapper: ElementRef;
+  @ViewChild('modalWrapper') modalWrapper: ElementRef;
   form: FormGroup;
   formEdit: FormGroup;
   modalData: Board = {name: '', id: 1};
   showDelete: boolean = false;
+  addBoardModal: boolean = false;
+  editBoardModal: boolean = false;
+  showSettBtn: boolean = false;
 
   constructor(public boardService: BoardService,
               private router: Router) {
@@ -48,12 +51,13 @@ export class HomePageComponent implements OnInit {
     this.boardService.createBoard(board);
     this.form.reset();
     this.router.navigate(['/']);
-    $('.add-board-wrapper').css('display', 'none');
+    this.addBoardWrapper.nativeElement.style.display = 'none';
+    this.addBoardModal = false;
   }
 
   showModal(id: number) {
     this.modalData = this.boardService.boardById(id);
-    $('.modal-wrapper').css('display', 'block');
+    this.editBoardModal = true;
     this.formEdit.controls['name'].setValue(this.modalData.name);
   }
 
@@ -63,8 +67,9 @@ export class HomePageComponent implements OnInit {
     }
     const board = this.boardService.boardById(this.modalData.id);
     board.name = this.formEdit.value.name;
-    $('.modal-wrapper').css('display', 'none');
+    this.modalWrapper.nativeElement.style.display = 'none';
     this.formEdit.reset();
+    this.editBoardModal = false;
   }
 
   deleteBoard(mode: boolean) {
@@ -79,7 +84,8 @@ export class HomePageComponent implements OnInit {
       default:
         console.log('Something went wrong');
     }
-    $('.modal-wrapper').css('display', 'none');
+    this.modalWrapper.nativeElement.style.display = 'none';
     this.showDelete = false;
+    this.editBoardModal = false;
   }
 }

@@ -62,7 +62,6 @@ h2 {
       }
 
       .settBlock {
-        display: none;
         position: absolute;
         padding: 5px 10px;
         border: 2px solid #919191;
@@ -106,6 +105,11 @@ h2 {
       &-block {
         position: relative;
         border-bottom: solid 1px #ccc;
+        &-wrapper {
+          min-height: 50px;
+          background-color: rgba(114, 159, 204, 0.5);
+
+        }
         a {
           display: block;
           max-width: 300px;
@@ -163,7 +167,6 @@ h2 {
         }
 
         form {
-          display: none;
           position: relative;
           .wrapper {
             display: flex;
@@ -212,8 +215,6 @@ h2 {
       }
     }
     form {
-      display: none;
-
       .input-wrapper {
         position: relative;
         padding: 5px;
@@ -258,7 +259,7 @@ h2 {
 
 .card {
   &-modal-wrapper {
-    display: none;
+    display: block;
     position: absolute;
     top: 0;
     left: 0;
@@ -315,7 +316,7 @@ h2 {
     background-color: #333333;
     opacity: .9;
     transform: translateX(-50%);
-
+    z-index: 10;
     h3 {
       color: #fff;
     }

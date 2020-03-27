@@ -1,9 +1,8 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Params} from '@angular/router';
 import {BoardService} from '../services/board.service';
 import {Board, Card, Column} from '../../environments/interfaces';
-import * as $ from 'jquery';
 import {Subscription} from 'rxjs';
 
 @Component({
@@ -12,6 +11,11 @@ import {Subscription} from 'rxjs';
   styleUrls: ['./boards-page.component.scss']
 })
 export class BoardsPageComponent implements OnInit, OnDestroy {
+
+  @ViewChild('title') title: ElementRef;
+  @ViewChild('settBlock') settBlock: ElementRef;
+  @ViewChild('cardModalWrapper') cardModalWrapper: ElementRef;
+
   formColumn: FormGroup;
   formCard: FormGroup;
   formEditColumn: FormGroup;
@@ -20,6 +24,12 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
   modalColumn: Column = {name: '', id: 0};
   modalCard: Card = {name: '', id: 0, content: ''};
   showDelete: boolean = false;
+  modalClose: boolean = false;
+  showCreateColumnForm: boolean = false;
+  showMore;
+  showCreateCardForm;
+  dragFromColumnId: number = null;
+  dragCardId: number = null;
   sub$: Subscription;
 
   constructor(private route: ActivatedRoute,
@@ -43,12 +53,21 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
     this.sub$ = this.route.params.subscribe((params: Params) => {
       this.board = this.boardService.boardById(+params.id);
     });
-    $(document).on('click', function(event) {
-      const modal = $('.settBlock');
-      if (!$('.more').is(event.target) && !modal.is(event.target) && modal.has(event.target).length === 0) {
-        modal.css('display', 'none');
+    document.addEventListener('click', (event: Event) => {
+      const settBlock = document.querySelector('.settBlock');
+      const target = event.target as Element;
+      if (!target.classList.contains('more') && settBlock) {
+        if (!settBlock.contains(target)) {
+          this.showMore = '';
+        }
       }
     });
+    // $(document).on('click', function(event) {
+    //     const modal = $('.settBlock');
+    //     if (!$('.more').is(event.target) && !modal.is(event.target) && modal.has(event.target).length === 0) {
+    //         modal.css('display', 'none');
+    //     }
+    // });
   }
 
   submitColumn() {
@@ -62,8 +81,7 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
     };
     this.boardService.boardById(this.board.id).columns.push(column);
     this.formColumn.reset();
-    $('#create-column').css('display', 'none');
-    $('.column-add').find('h3').css('display', 'block');
+    this.showCreateColumnForm = false;
   }
 
   submitCard(id: number) {
@@ -80,12 +98,9 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
   }
 
   showColSett(event, id: number) {
-    const modal = $('.settBlock');
-    modal.css('display', 'none');
-    const target = event.target;
-    $(target).parent().find(modal).css('display', 'block');
     this.modalColumn = this.boardService.columnById(this.board.id, id);
     this.formEditColumn.controls['editColumnName'].setValue(this.modalColumn.name);
+
   }
 
   formEditColumnSubmit() {
@@ -94,7 +109,9 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
     }
     const column = this.boardService.columnById(this.board.id, this.modalColumn.id);
     column.name = this.formEditColumn.value.editColumnName;
-    $('.settBlock').css('display', 'none');
+    document.querySelectorAll('.settBlock').forEach((modal: HTMLElement) => {
+      modal.style.display = 'none';
+    });
     this.formEditColumn.reset();
   }
 
@@ -105,10 +122,11 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
     const name = this.formEditCard.value.editCardName;
     const content = this.formEditCard.value.editCardContent;
     this.boardService.editCard(this.board.id, this.modalColumn.id, this.modalCard.id, name, content);
-    $('.card-modal-wrapper').css('display', 'none');
+    this.cardModalWrapper.nativeElement.style.display = 'none';
     this.board = this.boardService.boards[this.board.id];
     this.modalColumn = this.boardService.columnById(this.board.id, this.modalColumn.id);
     this.modalCard = this.boardService.cardById(this.board.id, this.modalColumn.id, this.modalCard.id);
+    this.modalClose = false;
     this.formEditCard.reset();
   }
 
@@ -123,7 +141,6 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
       default:
         alert('Something went wrong');
     }
-    $('.modal-wrapper').css('display', 'none');
     this.showDelete = false;
     this.board = this.boardService.boardById(this.board.id);
   }
@@ -131,6 +148,7 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
   deleteCard(colId: number, cardId: number) {
     this.boardService.deleteCard(this.board.id, colId, cardId);
     this.board = this.boardService.boardById(this.board.id);
+
   }
 
   cardEdit(columnId: number, cardId: number) {
@@ -138,10 +156,46 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
     this.modalCard = this.boardService.cardById(this.board.id, columnId, cardId);
     this.formEditCard.controls['editCardName'].setValue(this.modalCard.name);
     this.formEditCard.controls['editCardContent'].setValue(this.modalCard.content);
-    $('.card-modal-wrapper').css('display', 'block');
+    this.modalClose = true;
   }
 
   ngOnDestroy() {
     this.sub$.unsubscribe();
   }
+
+  //drag&drop
+
+  onDragStart(event, columnId, cardId) {
+    this.dragFromColumnId = columnId;
+    this.dragCardId = cardId;
+    const card = this.boardService.cardById(this.board.id, columnId, cardId);
+    event.dataTransfer.setData('text', `${card.name}&${card.content}`);
+    event.currentTarget.style.border = '3px dashed rgba(238, 1, 0, 0.5)';
+  }
+
+  onDragOver(event) {
+    event.preventDefault();
+    event.target.closest('.list-block-wrapper').style.border = '3px dashed rgba(0, 238, 24, 0.5)';
+  }
+  onDragLeave(event) {
+    event.preventDefault();
+    event.target.closest('.list-block-wrapper').style.border = '';
+  }
+
+  onDrop(event, columnId) {
+    const data = event
+      .dataTransfer
+      .getData('text');
+    const [cardName, cardContent] = data.split('&');
+    const card: Card = {
+      id: this.boardService.columnById(this.board.id, columnId).cards.length ? this.boardService.getLastCardId(this.board.id, columnId) + 1 : this.boardService.getLastCardId(this.board.id, columnId),
+      name: cardName,
+      content: cardContent
+    };
+    this.boardService.columnById(this.board.id, columnId).cards.push(card);
+    this.boardService.deleteCard(this.board.id, this.dragFromColumnId, this.dragCardId);
+    event.dataTransfer.clearData();
+    event.target.closest('.list-block-wrapper').style.border = '';
+  }
+
 }
