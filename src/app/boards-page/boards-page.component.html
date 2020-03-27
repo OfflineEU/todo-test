@@ -3,11 +3,13 @@
 <div class="container">
   <div class="column-wrapper">
     <div class="column-block"
-         *ngFor="let column of board.columns">
+         *ngFor="let column of board.columns"
+         (dragover)='onDragOver($event)' (dragleave)="onDragLeave($event)" (drop)='onDrop($event, column.id)'
+    >
       <div class="title">
         <h3>{{column.name}}</h3>
-        <a class="more" (click)="showColSett($event, column.id)"> </a>
-        <div class="settBlock">
+        <a class="more" (click)="showColSett($event, column.id); showMore = column.id"> </a>
+        <div class="settBlock" #settBlock *ngIf="showMore === column.id">
           <h3>Column editing</h3>
           <hr>
           <form [formGroup]="formEditColumn" (ngSubmit)="formEditColumnSubmit()">
@@ -25,23 +27,31 @@
           <button (click)="showDelete = true" class="deleteBtn">Delete column</button>
         </div>
       </div>
-      <div class="list-block" *ngFor="let card of column.cards">
+      <div class="list-block-wrapper">
+      <div class="list-block"
+           *ngFor="let card of column.cards"
+           [draggable]="true" (dragstart)='onDragStart($event, column.id, card.id)'
+      >
         <a (click)="cardEdit(column.id, card.id)">{{card.name}}</a>
         <p class="description">{{card.content}}</p>
         <span (click)="deleteCard(column.id, card.id)">&times;</span>
       </div>
+      </div>
       <div class="list-add">
         <a id="newCard" class="addCardTitle"
-           appFormStyle
+           (click)="showCreateCardForm = column.id"
+           *ngIf="!(showCreateCardForm === column.id)"
         >Add new card</a>
         <!-- Create card form -->
         <form id="create-card" class="addCardTitleForm"
+              *ngIf="showCreateCardForm === column.id"
               [formGroup]="formCard"
-              (ngSubmit)="submitCard(column.id)">
+              (ngSubmit)="submitCard(column.id)"
+        >
           <div class="wrapper">
             <input type="text" placeholder="Card name" formControlName="cardName">
             <span id="closeNewCard"
-                  appFormStyle
+                  (click)="showCreateCardForm.delete(column.id)"
             >&times;</span>
           </div>
           <div
@@ -58,13 +68,14 @@
         <!-- -- -->
       </div>
     </div>
-    <div class="column-add" id="newColumn"
-         appFormStyle>
-      <h3>Add new column</h3>
+    <div class="column-add" id="newColumn">
+      <h3 #title *ngIf="!showCreateColumnForm" (click)="showCreateColumnForm = true">Add new column</h3>
       <!-- Create column form -->
       <form id="create-column"
+            *ngIf="showCreateColumnForm"
             [formGroup]="formColumn"
-            (ngSubmit)="submitColumn()">
+            (ngSubmit)="submitColumn()"
+      >
         <div class="input-wrapper">
           <input type="text" id="column-name" placeholder="Column name" formControlName="columnName">
           <div
@@ -73,7 +84,7 @@
           >
             <small *ngIf="formColumn.get('columnName').errors.required">This field cannot be empty</small>
           </div>
-          <span id="closeNewColumn">&times;</span>
+          <span id="closeNewColumn" (click)="showCreateColumnForm = false">&times;</span>
         </div>
         <button type="submit"
                 [disabled]="formColumn.invalid"
@@ -91,9 +102,9 @@
     <button (click)="deleteColumn(false)">No</button>
   </div>
 </div>
-<div class="card-modal-wrapper">
+<div class="card-modal-wrapper" #cardModalWrapper *ngIf="modalClose">
   <div class="card-modal-block">
-    <div class="close" appModalClose>&times;</div>
+    <div class="close" (click)="modalClose = false">&times;</div>
     <h3>{{modalCard.name}}</h3>
     <form [formGroup]="formEditCard" (ngSubmit)="formEditCardSubmit()">
       <label>Card name:<input type="text" value="{{modalCard.name}}" formControlName="editCardName"></label>
@@ -108,3 +119,7 @@
     </form>
   </div>
 </div>
+
+<pre>
+  {{this.board | json}}
+</pre>
