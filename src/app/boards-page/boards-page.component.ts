@@ -166,10 +166,7 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
   //drag&drop
 
   onDragStart(event, columnId, cardId) {
-    this.dragFromColumnId = columnId;
-    this.dragCardId = cardId;
-    const card = this.boardService.cardById(this.board.id, columnId, cardId);
-    event.dataTransfer.setData('text', `${card.name}&${card.content}`);
+    event.dataTransfer.setData('text', `${columnId}&${cardId}`);
     event.currentTarget.style.border = '3px dashed rgba(238, 1, 0, 0.5)';
   }
 
@@ -186,16 +183,16 @@ export class BoardsPageComponent implements OnInit, OnDestroy {
     const data = event
       .dataTransfer
       .getData('text');
-    const [cardName, cardContent] = data.split('&');
+    const [fromColumnId, fromCardId] = data.split('&');
+    const fromCard = this.boardService.cardById(this.board.id, +fromColumnId, +fromCardId);
     const card: Card = {
       id: this.boardService.columnById(this.board.id, columnId).cards.length ? this.boardService.getLastCardId(this.board.id, columnId) + 1 : this.boardService.getLastCardId(this.board.id, columnId),
-      name: cardName,
-      content: cardContent
+      name: fromCard.name,
+      content: fromCard.content
     };
     this.boardService.columnById(this.board.id, columnId).cards.push(card);
-    this.boardService.deleteCard(this.board.id, this.dragFromColumnId, this.dragCardId);
+    this.boardService.deleteCard(this.board.id, +fromColumnId, +fromCardId);
     event.dataTransfer.clearData();
     event.target.closest('.list-block-wrapper').style.border = '';
   }
-
 }
